@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("¿ÞÂÊ ÀÌµ¿");
             transform.localScale = new Vector2(-1, 1);
         }
-
+        
         if (Input.GetButtonDown("Jump"))
         {
             Jump();
@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        onGround = Physics2D.Linecast(transform.position, transform.position - (transform.up * 0.1f), groundLayer);
+        onGround = Physics2D.Linecast(transform.position, transform.position - (transform.up * 1f), groundLayer);
         if (onGround || axisH != 0)
         {
             rbody.velocity = new Vector2(speed * axisH, rbody.velocity.y);

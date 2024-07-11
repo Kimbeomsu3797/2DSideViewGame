@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Goal
   - Dead
+  - player
   layers:
   - Default
   - TransparentFX
