@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     string oldAnime = "";
 
     public static string gameState = "playing";
+    public int score = 0;
+
+    bool isMoving = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -38,6 +41,10 @@ public class PlayerController : MonoBehaviour
         if(gameState != "playing")
         {
             return;
+        }
+        if(isMoving == false)
+        {
+            axisH = Input.GetAxisRaw("Horizontal");
         }
         axisH = Input.GetAxisRaw("Horizontal");
         if (axisH > 0.0f)
@@ -56,9 +63,31 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
+       
+
+    }
+    void FixedUpdate()
+    {
+        
+        onGround = Physics2D.Linecast(transform.position, transform.position - (transform.up * 0.01f), groundLayer);
+        //Debug.Log(transform.position );
+        //Debug.Log(transform.position);
+        //Debug.Log((transform.up * 0.01f));
+        if (onGround || axisH != 0)
+        {
+            rbody.velocity = new Vector2(speed * axisH, rbody.velocity.y);
+        }
+        //Debug.Log("점프!" + onGround + goJump);
+        if (onGround && goJump)
+        {
+            //Debug.Log("점프!");
+            Vector2 jumpPw = new Vector2(0, jump);
+            rbody.AddForce(jumpPw, ForceMode2D.Impulse);
+            goJump = false;
+        }
         if (onGround)
         {
-            if(axisH == 0)
+            if (axisH == 0)
             {
                 nowAnime = stopAnime;
             }
@@ -72,27 +101,10 @@ public class PlayerController : MonoBehaviour
             nowAnime = jumpAnime;
         }
 
-        if(nowAnime != oldAnime)
+        if (nowAnime != oldAnime)
         {
             oldAnime = nowAnime;
             animator.Play(nowAnime);
-        }
-
-    }
-    void FixedUpdate()
-    {
-        onGround = Physics2D.Linecast(transform.position, transform.position - (transform.up * 1f), groundLayer);
-        if (onGround || axisH != 0)
-        {
-            rbody.velocity = new Vector2(speed * axisH, rbody.velocity.y);
-        }
-        Debug.Log("점프!" + onGround + goJump);
-        if (onGround && goJump)
-        {
-            Debug.Log("점프!");
-            Vector2 jumpPw = new Vector2(0, jump);
-            rbody.AddForce(jumpPw, ForceMode2D.Impulse);
-            goJump = false;
         }
     }
     public void Jump()
@@ -100,17 +112,24 @@ public class PlayerController : MonoBehaviour
         goJump = true;
         Debug.Log("점프 버튼 눌림!");
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Goal")
+        if (collision.gameObject.tag == "Goal")
         {
             Goal();
         }
-        else if(collision.gameObject.tag == "Dead")
+        else if (collision.gameObject.tag == "Dead")
         {
             GameOver();
         }
+        else if (collision.gameObject.tag == "ScoreItem")
+        {
+            ItemData item = collision.gameObject.GetComponent<ItemData>();
+            score = item.value;
+            Destroy(collision.gameObject);
+        }
     }
+
     public void Goal()
     {
         animator.Play(goalAnime);
@@ -129,5 +148,17 @@ public class PlayerController : MonoBehaviour
     {
         Rigidbody2D rbody = GetComponent<Rigidbody2D>();
         rbody.velocity = new Vector2(0, 0);
+    }
+    public void SetAxis(float h, float v)
+    {
+        axisH = h;
+        if (axisH == 0)
+        {
+            isMoving = false;
+        }
+        else
+        {
+            isMoving = true;
+        }
     }
 }

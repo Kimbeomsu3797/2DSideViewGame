@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,11 +17,13 @@ public class GameManager : MonoBehaviour
     public GameObject timeBar;
     public GameObject timeText;
     TimeController timeCnt;
-    
-    //임의 생성 파트 (세이브용)
-    int totalScore;
-    int stageScore;
+    //
+    public GameObject scoreText;
+    public static int totalScore;
+    public int stageScore = 0;
+    PlayerController playerCnt;
 
+    public GameObject inputUI;
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +38,8 @@ public class GameManager : MonoBehaviour
                 timeBar.SetActive(false);
             }
         }
+        UpdateScore();
+        playerCnt = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -58,7 +63,8 @@ public class GameManager : MonoBehaviour
             }
             totalScore += stageScore;
             stageScore = 0;
-            updateScore();
+            UpdateScore();
+            inputUI.SetActive(false);
         }
         else if(PlayerController.gameState == "gameover")
         {
@@ -73,6 +79,7 @@ public class GameManager : MonoBehaviour
             {
                 timeCnt.isTimeOver = true;
             }
+            inputUI.SetActive(false);
         }
         else if(PlayerController.gameState == "playing")
         {
@@ -94,6 +101,13 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if(playerCnt.score != 0)
+        {
+            stageScore += playerCnt.score;
+            playerCnt.score = 0;
+            UpdateScore();
+        }
+        
     }
     void InactiveImage()
     {
@@ -101,8 +115,15 @@ public class GameManager : MonoBehaviour
     }
 
     //세이브용 임의 생성 함수
-    void updateScore()
+    void UpdateScore()
     {
-
+        int score = stageScore + totalScore;
+        scoreText.GetComponent<Text>().text = score.ToString();
+    }
+    public void Jump()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("player");
+        PlayerController playerCnt = player.GetComponent<PlayerController>();
+        playerCnt.Jump();
     }
 }
